@@ -1,15 +1,17 @@
 // proximity sensor constants
 #define ProximitySensorAnalogIndex 0 // note:  This is specifically the analog index, not physical pin
 #define ProximityThreshold 85 // larger is closer, 65-512 usable ranges
-#define ProximityConsecutiveReadings 16 // number of readings above threshold before triggering
+#define ProximityConsecutiveReadings 32 // number of readings at thresholds before changing proximity state
 
 // proximity effect constants
-#define RedLedPin 7
+#define RedLedPinA 7
+#define RedLedPinB 6
 #define BuzzerPin 5
-#define BuzzerFrequencyHertz 380
+#define BuzzerFrequencyHertz 5000
 
 // candle effect constants
-#define CandleLedPin 11
+#define CandleLedPinA 11
+#define CandleLedPinB 12
 #define CandleFlickerMaxInterval 400
 #define CandleFlickerMinInterval 100
 #define CandleFlickerMaxBrightness 255
@@ -28,8 +30,10 @@ bool isProximityDetected = false;
 
 void setup() 
 {
-  pinMode(CandleLedPin, OUTPUT);
-  pinMode(RedLedPin, OUTPUT);
+  pinMode(CandleLedPinA, OUTPUT);
+  pinMode(CandleLedPinB, OUTPUT);
+  pinMode(RedLedPinA, OUTPUT);
+  pinMode(RedLedPinB, OUTPUT);
   pinMode(BuzzerPin, OUTPUT);
 
   delay(1000); // Allow the proximity sensor to initialize
@@ -54,18 +58,21 @@ void loop()
 void TurnOffProximityEffect()
 {
   noTone(BuzzerPin);
-  digitalWrite(RedLedPin, LOW);
+  digitalWrite(RedLedPinA, LOW);
+  digitalWrite(RedLedPinB, LOW);
 }
 
 void UpdateProximityEffect()
 {
-  digitalWrite(RedLedPin, HIGH);
+  digitalWrite(RedLedPinA, HIGH);
+  digitalWrite(RedLedPinB, HIGH);
   tone(BuzzerPin, BuzzerFrequencyHertz);
 }
 
 void TurnOffCandleEffect()
 {
-  digitalWrite(CandleLedPin, LOW);
+  digitalWrite(CandleLedPinA, LOW);
+  digitalWrite(CandleLedPinB, LOW);
 }
 
 void UpdateCandleEffect()
@@ -85,7 +92,8 @@ void UpdateCandleEffect()
   // linear interpolation from source to target giving current time progress
   candleFlickerCurrent = candleFlickerStart + candleFlickerInterval * (candleFlickerTarget - candleFlickerStart) / deltaTime;
   
-  analogWrite(CandleLedPin, candleFlickerCurrent);
+  analogWrite(CandleLedPinA, candleFlickerCurrent);
+  analogWrite(CandleLedPinB, candleFlickerCurrent);
 }
 
 void UpdateProximityDetection()
