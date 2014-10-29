@@ -41,19 +41,37 @@ void setup()
 
 void loop() 
 {
-  UpdateProximityDetection();
+  if (UpdateProximityDetection())
+  {
+    if (isProximityDetected)
+    {
+      TurnOffCandleEffect();
+      TurnOnProximityEffect();
+    }
+    else
+    {
+      TurnOffProximityEffect();
+      TurnOnCandleEffect();
+    }
+  }
+  
   if (isProximityDetected)
   {
-    TurnOffCandleEffect();
     UpdateProximityEffect();
   }
   else
   {
-    TurnOffProximityEffect();
     UpdateCandleEffect();
   }
 }
 
+
+void TurnOnProximityEffect()
+{
+  digitalWrite(RedLedPinA, HIGH);
+  digitalWrite(RedLedPinB, HIGH);
+  tone(BuzzerPin, BuzzerFrequencyHertz);
+}
 
 void TurnOffProximityEffect()
 {
@@ -64,9 +82,12 @@ void TurnOffProximityEffect()
 
 void UpdateProximityEffect()
 {
-  digitalWrite(RedLedPinA, HIGH);
-  digitalWrite(RedLedPinB, HIGH);
-  tone(BuzzerPin, BuzzerFrequencyHertz);
+}
+
+void TurnOnCandleEffect()
+{
+  digitalWrite(CandleLedPinA, HIGH);
+  digitalWrite(CandleLedPinB, HIGH);
 }
 
 void TurnOffCandleEffect()
@@ -96,9 +117,10 @@ void UpdateCandleEffect()
   analogWrite(CandleLedPinB, candleFlickerCurrent);
 }
 
-void UpdateProximityDetection()
+bool UpdateProximityDetection()
 {
   int proximity = analogRead(ProximitySensorAnalogIndex);
+  bool stateChanged = false;
   
   // leakey bucket implementation for state change
   // this provides a debounce filter
@@ -121,10 +143,14 @@ void UpdateProximityDetection()
   if (proximityInRangeReadings == ProximityConsecutiveReadings)
   {
     isProximityDetected = true;
+    stateChanged = true;
   }
   else if (proximityInRangeReadings == 0)
   {
     isProximityDetected = false;
+    stateChanged = true;
   }
+  
+  return stateChanged;
 }
 
